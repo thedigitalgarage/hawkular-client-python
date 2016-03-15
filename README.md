@@ -106,3 +106,38 @@ Querying metrics is limited to just metric_id querying now with given search_opt
 ## Method documentation
 
 Method documentation is available with ``pydoc hawkular``
+
+
+## How to access all metrics for a project on Openshift
+
+You can access all metrics using Hawkular Metrics as this guide does, [Hawkular Metrics Documentation](https://github.com/openshift/origin-metrics/blob/master/docs/hawkular_metrics.adoc#accessing-metrics-using-hawkular-metrics).
+
+The command listed there is just an example of how you could access it using a basic command line tools such as curl
+
+```
+curl -H "Authorization: Bearer ${USER_TOKEN}" -H "Hawkular-tenant: ${PROJECT_NAME}" -X GET https://${HAWKULAR_METRICS_HOSTNAME}/hawkular/metrics/metrics
+```
+
+
+USER_TOKEN: the token of the user to access the metrics for the project. You will need to get this from the [OpenShift OAuth provider](https://docs.openshift.com/enterprise/3.0/architecture/additional_concepts/authentication.html#oauth).
+
+You can just run ``vagrant ssh`` in your terminal (Of course, You need to run the Vagrant machine with ``vagrant up``, first).
+
+This will SSH into a running Vagrant machine and give you access to a shell.
+
+After this, please login with 'oc login' as an authenticated user.
+
+You can use ``admin/admin`` for authenticated user credentials(Username/Password).
+
+For simple testing, if you are logged into 'oc' as an authenticated user, you can get this from 'oc whoami -t'.
+
+The string you get returned is a Bearer Token(USER_TOKEN).
+
+
+PROJECT_NAME: the name of the project you want to access metrics for.
+
+
+HAWKULAR_METRICS_HOSTNAME: this should correspond to the route's hostname for exposing the metrics service. This is specified during the metrics install. Note that this requires that the router is installed and is configured to expose the service to whatever network you are trying to access this from.
+
+
+Now you can access all metrics for a project.

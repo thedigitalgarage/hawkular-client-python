@@ -6,6 +6,7 @@ except ImportError:
 import urllib
 import time
 import collections
+import ssl
 
 """
 TODO: Remember to do imports for Python 3 also and check the compatibility..
@@ -35,7 +36,7 @@ class Availability:
 
 class HawkularMetricsError(urllib2.HTTPError):
     pass
-        
+
 class HawkularMetricsConnectionError(urllib2.URLError):
     pass
 
@@ -48,7 +49,7 @@ class HTTPErrorProcessor(urllib2.HTTPErrorProcessor):
         if response.code in [200, 201, 204]:
             return response
         return urllib2.HTTPErrorProcessor.http_response(self, request, response)
-  
+
     https_response = http_response
 
 class HawkularMetricsClient:
@@ -58,24 +59,28 @@ class HawkularMetricsClient:
     """
     def __init__(self,
                  tenant_id,
-                 host='localhost',
-                 port=8080,
+                 host='hawkular-metrics.apps.10.2.2.2.xip.io',
+                 port=8443,
                  path='hawkular/metrics'):
         """
         A new instance of HawkularMetricsClient is created with the following defaults:
 
-        host = localhost
-        port = 8081
-        path = hawkular-metrics
+        default host = localhost
+        default port = 8081
+        default path = hawkular-metrics
 
         The url that is called by the client is:
 
-        http://{host}:{port}/{2}/
+        http://{host}:{port}/{path}/
         """
         self.tenant_id = tenant_id
         self.host = host
         self.port = port
         self.path = path
+
+        print tenant_id
+        print host
+        print path
 
         opener = urllib2.build_opener(HTTPErrorProcessor())
         urllib2.install_opener(opener)
@@ -88,23 +93,25 @@ class HawkularMetricsClient:
         return urllib.quote(metric_id, '')
 
     def _get_base_url(self):
-        return "http://{0}:{1}/{2}/".format(self.host, str(self.port), self.path)
-    
+        return "https://{0}:{1}/{2}/".format(self.host, str(self.port), self.path)
+
     def _get_url(self, metric_type):
         return self._get_base_url() + '{0}'.format(metric_type)
 
     def _get_metrics_single_url(self, metric_type, metric_id):
         return self._get_url(metric_type) + '/{0}'.format(self._clean_metric_id(metric_id))
-    
+
     def _get_metrics_data_url(self, metrics_url):
         return metrics_url + '/data'
 
     def _get_metrics_tags_url(self, metrics_url):
-        return metrics_url + '/tags'
+        tags_url = metrics_url + '/metrics?tags=descriptor_name:cpu/usage'
+        print tags_url
+        return tags_url
 
     def _get_tenants_url(self):
         return self._get_base_url() + 'tenants'
-    
+
     def _http(self, url, method, data=None):
         res = None
 
@@ -112,6 +119,7 @@ class HawkularMetricsClient:
             req = urllib2.Request(url=url)
             req.add_header('Content-Type', 'application/json')
             req.add_header('Hawkular-Tenant', self.tenant_id)
+            req.add_header('Authorization', 'Bearer QCKcZ2eA9FiD_tT0QlNyY5nQmrmcNcaVjQU0w40tRsI')
 
             if not isinstance(data, str):
                 data = json.dumps(data, indent=2)
@@ -119,8 +127,9 @@ class HawkularMetricsClient:
             if data:
                 req.add_data(data)
 
-            req.get_method = lambda: method    
-            res = urllib2.urlopen(req)
+            req.get_method = lambda: method
+            gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+            res = urllib2.urlopen(req, context=gcontext)
             if method == 'GET':
                 if res.getcode() == 200:
                     data = json.load(res)
@@ -134,14 +143,14 @@ class HawkularMetricsClient:
 
         finally:
             if res:
-                res.close()        
-    
+                res.close()
+
     def _put(self, url, data):
         self._http(url, 'PUT', data)
 
     def _delete(self, url):
-        self._http(url, 'DELETE')    
-        
+        self._http(url, 'DELETE')
+
     def _post(self, url, data):
         self._http(url, 'POST', data)
 
@@ -149,9 +158,10 @@ class HawkularMetricsClient:
         params = urllib.urlencode(url_params)
         if len(params) > 0:
             url = '{0}?{1}'.format(url, params)
+            print url
 
-        return self._http(url, 'GET')        
-        
+        return self._http(url, 'GET')
+
     def _handle_error(self, e):
         if isinstance(e, urllib2.HTTPError):
             # Cast to HawkularMetricsError
@@ -173,22 +183,22 @@ class HawkularMetricsClient:
             raise e
         else:
             raise e
-        
+
     def _isfloat(value):
         try:
             float(value)
             return True
         except ValueError:
             return False
-        
+
     """
     External methods
-    """    
+    """
 
     """
     Instance methods
     """
-    
+
     def put(self, data):
         """
         Send multiple different metric_ids to the server in a single batch. Metrics can be a mixture
@@ -223,7 +233,7 @@ class HawkularMetricsClient:
 
     def query_metric(self, metric_type, metric_id, **search_options):
         """
-        Query for metrics from the server. 
+        Query for metrics from the server.
 
         Supported search options are [optional]: start, end and buckets
 
@@ -245,10 +255,10 @@ class HawkularMetricsClient:
         See query_metric
         """
         return self.query_metric(MetricType.Availability, metric_id, **search_options)
-    
+
     def query_definitions(self, query_type):
         """
-        Query available metric definitions. 
+        Query available metric definitions.
         """
         definition_url = self._get_url('metrics') + '?type=' + MetricType.short(query_type)
         return self._get(definition_url)
@@ -292,7 +302,7 @@ class HawkularMetricsClient:
         See create_metric_definition
         """
         return self.create_metric_definition(MetricType.Availability, metric_id, **tags)
-        
+
     def query_metric_tags(self, metric_type, metric_id):
         """
         Returns a list of tags in the metric definition of metric_id
@@ -314,12 +324,12 @@ class HawkularMetricsClient:
         tags = ','.join("%s:%s" % (key,val) for (key,val) in deleted_tags.iteritems())
         tags_url = self._get_metrics_tags_url(self._get_metrics_single_url(metric_type, metric_id)) + '/{0}'.format(tags)
 
-        self._delete(tags_url)    
-        
+        self._delete(tags_url)
+
     """
     Tenant related queries
     """
-    
+
     def query_tenants(self):
         """
         Query available tenants and their information.
@@ -330,7 +340,7 @@ class HawkularMetricsClient:
         """
         Create a tenant. Currently nothing can be set (to be fixed after the master
         version of Hawkular-Metrics has fixed implementation.
-        """        
+        """
         item = { 'id': tenant_id }
 
         # if retention_time is not None:
@@ -373,6 +383,5 @@ def create_metric(metric_type, metric_id, data):
     """
     if not isinstance(data, list):
         data = [data]
-    
+
     return { 'type': metric_type,'id': metric_id, 'data': data }
-        

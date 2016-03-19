@@ -24,11 +24,11 @@ class MetricsTestCase(TestMetricFunctionsBase):
         v2 = create_datapoint(float(2.00), (t - 2000))
 
         m = create_metric(MetricType.Gauge, 'test.query.gauge.1', [v1, v2])
-        print m
+        print (m)
         #self.client.put(m)
 
         t = self.client.query_tenants()
-        print "Tenants ", t
+        print ("Tenants ", t)
 
         # Query first without limitations
         d = self.client.query_metric(MetricType.Gauge, 'test.query.gauge.1')

@@ -102,7 +102,7 @@ class HawkularMetricsClient:
 
     def _get_metrics_tags_url(self, metrics_url):
         tags_url = metrics_url + '/metrics?tags=descriptor_name:cpu/usage'
-        print tags_url
+        print (tags_url)
         return tags_url
 
     def _get_tenants_url(self):
@@ -121,7 +121,7 @@ class HawkularMetricsClient:
                 data = json.dumps(data, indent=2)
 
             if data:
-                req.add_data(data)
+                req.data = data
 
             req.get_method = lambda: method
             gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
@@ -151,10 +151,10 @@ class HawkularMetricsClient:
         self._http(url, 'POST', data)
 
     def _get(self, url, **url_params):
-        params = urllib.urlencode(url_params)
+        params = urllib.parse.urlencode(url_params)
         if len(params) > 0:
             url = '{0}?{1}'.format(url, params)
-            print url
+            print (url)
 
         return self._http(url, 'GET')
 

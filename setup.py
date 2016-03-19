@@ -10,10 +10,4 @@ setup(
       author_email='miburman@redhat.com',
       url='http://github.com/hawkular/hawkular-client-python',
       packages=['hawkular']
-      install_requires=[
-        "requests"
-        "pyopenssl"
-        "ndg-httpsclient"
-        "pyasnl"
-        ]
       )

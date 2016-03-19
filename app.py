@@ -4,7 +4,7 @@ import urllib2
 from hawkular.metrics import *
 from bottle import route, run
 
-f = urllib2.urlopen('http://www.python.org/')
+f = urllib2.urlopen('https://www.openshift.org/vm/')
 print f.read(100)
 
 @route('/')

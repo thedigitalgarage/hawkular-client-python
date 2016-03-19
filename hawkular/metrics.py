@@ -78,10 +78,6 @@ class HawkularMetricsClient:
         self.port = port
         self.path = path
 
-        print tenant_id
-        print host
-        print path
-
         opener = urllib2.build_opener(HTTPErrorProcessor())
         urllib2.install_opener(opener)
 

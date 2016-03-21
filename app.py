@@ -4,7 +4,7 @@ import requests
 from bottle import route, run
 
 
-url = 'https://hawkular-metrics.apps.10.2.2.2.xip.io/hawkular/metrics/metrics'
+url = 'https://hawkular-metrics.apps.10.2.2.2.xip.io:8443/hawkular/metrics/metrics'
 headers = { 'Content-Type': 'application/json', 'Hawkular-Tenant': 'sample', 'Authorization': 'Bearer EW4COhQplP_SOkhvDaIJJwW6R4z4BI3DUg1vzHF197I'}
 req = requests.get(url, headers=headers)
 

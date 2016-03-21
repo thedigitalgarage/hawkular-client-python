@@ -1,20 +1,14 @@
 __author__ = 'johnniemac'
 
-import urllib2
-import ssl
-import SSLContext
-from hawkular.metrics import *
+import requests
 from bottle import route, run
 
-req = urllib2.Request(url=url)
-req.add_header('Content-Type', 'application/json')
-req.add_header('Hawkular-Tenant', self.tenant_id)
-req.add_header('Authorization', 'Bearer QCKcZ2eA9FiD_tT0QlNyY5nQmrmcNcaVjQU0w40tRsI')
-req.get_method = lambda: method
-gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 
-f = urllib2.urlopen('https://hawkular-metrics.apps.10.2.2.2.xip.io/hawkular/metrics/metrics')
-print f.read(100)
+url = 'https://hawkular-metrics.apps.10.2.2.2.xip.io/hawkular/metrics/metrics'
+headers = { 'Content-Type': 'application/json', 'Hawkular-Tenant': 'sample', 'Authorization': 'Bearer EW4COhQplP_SOkhvDaIJJwW6R4z4BI3DUg1vzHF197I'}
+req = requests.get(url, headers=headers)
+
+req.json()
 
 @route('/')
 def index():

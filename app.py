@@ -2,7 +2,6 @@ __author__ = 'johnniemac'
 
 import urllib2
 import ssl
-import SSLContext
 from hawkular.metrics import *
 from bottle import route, run
 

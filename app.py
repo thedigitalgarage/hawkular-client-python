@@ -13,7 +13,7 @@ req.json()
 
 @route('/')
 def index():
-    return "<h1>" print(json.dumps(req, sort_keys=True, indent=4))" This is a test</h1>"
+    return "<h1>" + print(json.dumps(req, sort_keys=True, indent=4) + "</h1>"
 
 if __name__ == '__main__':
     run(host='0.0.0.0', port=8080)

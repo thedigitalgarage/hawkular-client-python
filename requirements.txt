@@ -1,3 +1,2 @@
 bottle==0.12.8
 requests[security]
-json2html

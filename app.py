@@ -11,10 +11,12 @@ req = requests.get(url, headers=headers, verify=False)
 
 req.json()
 
+html = "<h1> It is working. The ID is: " + req.json()[2]['id'] + "</h1>"
+
 
 @route('/')
 def index():
-    return "<h1>This is a test</h1>"
+    return html
 
 if __name__ == '__main__':
     run(host='0.0.0.0', port=8080)

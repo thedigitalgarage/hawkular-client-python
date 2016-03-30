@@ -6,7 +6,7 @@ from bottle import route, run
 
 
 url = 'https://hawkular-metrics.apps.10.2.2.2.xip.io/hawkular/metrics/metrics'
-
+headers = { 'Content-Type': 'application/json', 'Hawkular-Tenant': 'sample', 'Authorization': 'Bearer _WpbISNMpyzJ04iMVrppTt-epM8U5M1BN7cAsp5rLO4'}
 req = requests.get(url, headers=headers, verify=False)
 
 req.json()

@@ -1,2 +1,2 @@
-<h1>Metrics for Project</h1>
+<h1>Metrics for Project-Percentage CPU Usage</h1>
 {{res}}
